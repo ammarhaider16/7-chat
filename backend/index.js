@@ -4,8 +4,9 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import timeStampGenerator from "./utils/timeStampGenerator.js";
 import removeRandomEntry from "./utils/removeAndReturnMapValue.js";
-import questionSet from "./utils/questionSet.js";
+import { questionSets } from "./utils/questionSets.js";
 import dotenv from "dotenv";
+import { randomInt } from "crypto";
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,10 @@ const socketIDToUserID = new Map();
 const availableUserIDToSocketID = new Map();
 const inChatUserIDToSocketID = new Map();
 
+const userIDtoMatchID = new Map();
+
+const questionSetsObjectSize = 25;
+
 io.on("connection", (socket) => {
   console.log(`connect: ${socket.id}`, socket.request.headers);
 
@@ -42,10 +47,7 @@ io.on("connection", (socket) => {
   socket.on("Client Enter Chat", (userID) => {
     availableUserIDToSocketID.set(userID, socket.id);
     console.log("Map updated");
-    console.log(
-      "availableUserIDToSocketID => ",
-      availableUserIDToSocketID
-    );
+    console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
 
     console.log("Matching Request Received!");
 
@@ -61,26 +63,28 @@ io.on("connection", (socket) => {
       inChatUserIDToSocketID.set(userID, socket.id);
       inChatUserIDToSocketID.set(userTwoID, userTwoSocketID);
 
-      console.log("Maps updated");
-      console.log(
-        "availableUserIDToSocketID => ",
-        availableUserIDToSocketID
-      );
-      console.log(
-        "inChatUserIDToSocketID => ",
-        inChatUserIDToSocketID
-      );
+      userIDtoMatchID.set(userID, userTwoID);
+      userIDtoMatchID.set(userTwoID, userID);
 
-      const questionSetID = 1;
+      console.log("Maps updated");
+      console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
+      console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
+      console.log("userIDtoMatchID => ", userIDtoMatchID);
+
+      const questionSetID = Math.ceil(Math.random() * questionSetsObjectSize);
+
+      const questionSetTopic = questionSets[questionSetID].topic;
 
       io.to(socket.id).emit("Server Found Random Chat Match", {
         matchID: userTwoID,
         questionSetID,
+        questionSetTopic,
       });
 
       io.to(userTwoSocketID).emit("Server Found Random Chat Match", {
         matchID: userID,
         questionSetID,
+        questionSetTopic,
       });
 
       console.log("Matching Request Completed!");
@@ -103,24 +107,22 @@ io.on("connection", (socket) => {
       io.to(matchSocketID).emit("Server Match Left Chat");
       availableUserIDToSocketID.delete(matchID);
       inChatUserIDToSocketID.delete(matchID);
+      userIDtoMatchID.delete(userID);
+      userIDtoMatchID.delete(matchID);
     }
 
     console.log("Maps updated");
-    console.log(
-      "availableUserIDToSocketID => ",
-      availableUserIDToSocketID
-    );
-    console.log(
-      "inChatUserIDToSocketID => ",
-      inChatUserIDToSocketID
-    );
+    console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
+    console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
+    console.log("userIDtoMatchID => ", userIDtoMatchID);
   });
 
   socket.on("Client Show Chat Question", (params) => {
     const { questionSetID, questionNumber } = params;
 
-    const questionText = questionSet.questions[questionNumber - 1];
-    const options = questionSet.options[questionNumber - 1];
+    const questionText =
+      questionSets[questionSetID].questions[questionNumber - 1];
+    const options = questionSets[questionSetID].options[questionNumber - 1];
 
     const emitParams = {
       questionText,
@@ -143,7 +145,8 @@ io.on("connection", (socket) => {
     if (!matchResponded) {
       const matchSocketID = userIDToSocketID.get(matchID);
       console.log(matchID, "has not responded");
-      const userResponse = questionSet.options[questionNumber - 1][option];
+      const userResponse =
+        questionSets[questionSetID].options[questionNumber - 1][option];
 
       io.to(matchSocketID).emit(
         "Server Chat Waiting For User Response",
@@ -152,10 +155,11 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("Server Waiting For Match Chat Response");
     } else {
       const userOneID = userID;
-      const userOneResponse = questionSet.options[questionNumber - 1][option];
+      const userOneResponse =
+        questionSets[questionSetID].options[questionNumber - 1][option];
       const userTwoID = matchID;
       const userTwoResponse = matchResponse;
-      const questionSetSize = questionSet.questions.length;
+      const questionSetSize = questionSets[questionSetID].questions.length;
       const sessionComplete = questionNumber == questionSetSize;
 
       console.log("userOneID => ", userOneID);
@@ -167,7 +171,7 @@ io.on("connection", (socket) => {
       console.log("Is session complete => ", sessionComplete);
 
       const emitParams = {
-        questionText: questionSet.questions[questionNumber - 1],
+        questionText: questionSets[questionSetID].questions[questionNumber - 1],
         questionNumber,
         userOneID,
         userOneResponse,
@@ -193,10 +197,30 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     const userID = socketIDToUserID.get(socket.id);
+    const matchID = userIDtoMatchID.get(userID);
     console.log(`User ${userID} disconnected`);
     socketIDToUserID.delete(socket.id);
     userIDToSocketID.delete(userID);
     availableUserIDToSocketID.delete(userID);
     inChatUserIDToSocketID.delete(userID);
+
+    if (matchID != null) {
+      const matchSocketID = userIDToSocketID.get(matchID);
+      io.to(matchSocketID).emit("Server Match Disconnected", userID);
+      availableUserIDToSocketID.delete(matchID);
+      inChatUserIDToSocketID.delete(matchID);
+      userIDtoMatchID.delete(userID);
+      userIDtoMatchID.delete(matchID);
+    }
+
+    console.log("Maps updated");
+    console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
+    console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
+    console.log("userIDtoMatchID => ", userIDtoMatchID);
   });
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  // Optional: Log the error, send to a monitoring service, etc.
 });
