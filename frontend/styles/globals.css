@@ -87,6 +87,12 @@
     font-size: clamp(20px, 4vw, 30px);
   }
 
+  .heading-red {
+    color: #FF6C5D;
+    font-weight: bold;
+    font-size: clamp(20px, 4vw, 30px);
+  }
+
   .subheading-red {
     color: #FF6C5D;
     font-weight: bold;

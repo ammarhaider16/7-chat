@@ -18,13 +18,8 @@ const Chat = () => {
   const [socketConnected, setSocketConnected] = useState(false);
 
   // CHAT DATA STATE HOOKS
-  const [thisQuestionSetID, setThisQuestionSetID] = useState(null);
   const [thisQuestionSetTopic, setThisQuestionSetTopic] = useState("");
   const [thisMatchID, setThisMatchID] = useState(null);
-  const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
-  const [matchResponded, setMatchResponded] = useState(false);
-  const [matchResponse, setMatchResponse] = useState(null);
-  const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [currentQuestionText, setCurrentQuestionText] = useState("");
   const [currentOptionA, setCurrentOptionA] = useState("");
   const [currentOptionB, setCurrentOptionB] = useState("");
@@ -32,7 +27,6 @@ const Chat = () => {
 
   // CHAT DATA REF HOOKS
   const thisQuestionSetIDRef = useRef(null);
-  const thisQuestionSetTopicRef = useRef("");
   const thisMatchIDRef = useRef(null);
   const currentQuestionNumberRef = useRef(1);
   const matchRespondedRef = useRef(false);
@@ -51,6 +45,8 @@ const Chat = () => {
   const [showWaitingForMatchResponse, setShowWaitingForMatchResponse] =
     useState(false);
   const [showResponseScreen, setShowResponseScreen] = useState(false);
+  const [showSessionCompleteScreen, setShowSessionCompleteScreen] =
+    useState(false);
 
   // CHAT QUESTION RESPONSE HOOKS
   const [thisResponseQuestionText, setThisResponseQuestionText] = useState("");
@@ -134,6 +130,9 @@ const Chat = () => {
     setShowSearchingForMatch(false);
     setShowMatchFound(false);
     setShowQuestionScreen(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
     // NEED TO ADD MORE CHAT STATES
     setErrorInChat(true);
     // RESET ALL CHAT DATA STATES AND REFS
@@ -142,20 +141,27 @@ const Chat = () => {
   const handleSearchingForMatch = () => {
     setShowPreChat(false);
     setShowConnectingToChatRoom(false);
+    setShowMatchFound(false);
+    setShowQuestionScreen(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
     setShowSearchingForMatch(true);
   };
 
   const handleMatchFound = (params) => {
     const { matchID, questionSetID, questionSetTopic } = params;
-    setThisQuestionSetID(questionSetID);
     setThisMatchID(matchID);
     setThisQuestionSetTopic(questionSetTopic);
     thisQuestionSetIDRef.current = questionSetID;
     thisMatchIDRef.current = matchID;
-    thisQuestionSetTopicRef.current = questionSetTopic;
     setShowPreChat(false);
     setShowConnectingToChatRoom(false);
     setShowSearchingForMatch(false);
+    setShowQuestionScreen(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
     setShowMatchFound(true);
     setTimeout(handleShowQuestionRequest, 7000);
   };
@@ -171,6 +177,8 @@ const Chat = () => {
   const handleShowQuestionSuccessful = (params) => {
     const { questionText, options } = params;
     respondedToCurrentQuestionRef.current = false;
+    matchRespondedRef.current = false;
+    matchResponseRef.current = null;
     setCurrentQuestionText(questionText);
     setCurrentOptionA(options["A"]);
     setCurrentOptionB(options["B"]);
@@ -181,13 +189,12 @@ const Chat = () => {
     setShowConnectingToChatRoom(false);
     setShowSearchingForMatch(false);
     setShowMatchFound(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
     setShowQuestionScreen(true);
 
     setTimeout(() => {
-      console.log("*************************");
-      console.log("AUTOMATIC RESPONSE CHECK");
-      console.log("************************");
-      console.log();
       if (!respondedToCurrentQuestionRef.current) {
         handleAnswerRequest("");
       }
@@ -220,6 +227,8 @@ const Chat = () => {
     setShowSearchingForMatch(false);
     setShowMatchFound(false);
     setShowQuestionScreen(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
     setShowWaitingForMatchResponse(true);
   };
 
@@ -233,7 +242,6 @@ const Chat = () => {
       userTwoResponse,
       sessionComplete,
     } = params;
-    currentQuestionNumberRef.current = questionNumber + 1;
     isSessionCompleteRef.current = sessionComplete;
     setThisResponseQuestionText(questionText);
     setThisUserOneID(userOneID);
@@ -252,7 +260,44 @@ const Chat = () => {
     setShowMatchFound(false);
     setShowQuestionScreen(false);
     setShowWaitingForMatchResponse(false);
+    setShowSessionCompleteScreen(false);
     setShowResponseScreen(true);
+
+    setTimeout(() => {
+      if (!isSessionCompleteRef.current) {
+        handleShowNextQuestion();
+      } else {
+        handleShowSessionComplete();
+      }
+    }, 7000);
+  };
+
+  const handleShowNextQuestion = () => {
+    currentQuestionNumberRef.current = currentQuestionNumberRef.current + 1;
+
+    setCurrentQuestionText("");
+    setCurrentOptionA("");
+    setCurrentOptionB("");
+    setCurrentOptionC("");
+
+    matchRespondedRef.current = false;
+    matchResponseRef.current = null;
+    respondedToCurrentQuestionRef.current = false;
+
+    console.log("**********SHOWING NEXT QUESTION****************");
+
+    handleShowQuestionRequest();
+  };
+
+  const handleShowSessionComplete = () => {
+    setShowPreChat(false);
+    setShowConnectingToChatRoom(false);
+    setShowSearchingForMatch(false);
+    setShowMatchFound(false);
+    setShowQuestionScreen(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(true);
   };
 
   return (
@@ -444,6 +489,18 @@ const Chat = () => {
                 </h1>
               </>
             )}
+            <div style={{ marginTop: 20 }}>
+              <ProgressBar duration={7} />
+            </div>
+          </div>
+        )}
+        {showSessionCompleteScreen && (
+          <div className="info-container-main">
+            <h1 className="heading-red">and the chat is complete</h1>
+            <h1 className="subheading-black" style={{ marginTop: 20 }}>
+              hope you enjoyed talking to{" "}
+              <span className="subheading-red">@{thisMatchID}!</span>
+            </h1>
           </div>
         )}
       </div>
