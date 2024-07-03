@@ -4,7 +4,7 @@ import {
   leaveChat,
   showQuestion,
   answerQuestion,
-} from "../socket/FiresideChatSockets.js";
+} from "../socket/7ChatSockets.js";
 
 const userID = "umar";
 const socket = getUserSocket(userID);
@@ -147,9 +147,9 @@ socket.on("Server Found Random Chat Match", (params) => {
   const { matchID, questionSetID, questionSetTopic } = params;
   thisQuestionSetID = questionSetID;
   thisMatchID = matchID;
-  thisQuestionSetTopic = questionSetTopic
+  thisQuestionSetTopic = questionSetTopic;
   console.log(`Found a match! => ${matchID}`);
-  console.log(`Question Set Topic => ${thisQuestionSetTopic}`)
+  console.log(`Question Set Topic => ${thisQuestionSetTopic}`);
 });
 
 socket.on("Server Show Chat Question", (params) => {

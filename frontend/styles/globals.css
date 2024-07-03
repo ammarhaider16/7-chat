@@ -2,3 +2,207 @@
 @tailwind components;
 @tailwind utilities;
 
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #FFFFB0;
+    color: #FF6C5D;
+    border: 2px solid #FF6C5D;
+    border-radius: 20px;
+    font-family: Arimo;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: clamp(12px, 2vh, 25px)
+  }
+  
+  .button:hover {
+    background-color: #FF6C5D;
+    color: #FFFFB0;
+  }
+
+  .option-button {
+    margin-top: 10px;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #FF6C5D;
+    color: #FFFFB0;
+    border: 2px solid #FFFFB0;
+    border-radius: 20px;
+    font-family: Arimo;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: clamp(12px, 2vh, 25px)
+  }
+  
+  .option-button:hover {
+    background-color: #FFFFB0;
+    color: #FF6C5D;
+    border: 2px solid black;
+  }
+  
+  .intro-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    align-items: center; 
+    text-align: center;
+    background-image: url("../public/background.svg");
+  }
+
+  .info-container-basic {
+    margin-top: 20px;
+    background-color: #FFFFB0;
+    width: 300px;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 25px;
+    text-align: center;
+    color: #FF6C5D;
+    font-weight: bold;
+  }
+
+  .info-container-main {
+    margin-top: 20px;
+    margin-right: 12.5vw;
+    margin-left: 12.5vw;
+    background-color: #FFFFB0;
+    width: 75vw;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 25px;
+    text-align: center;
+    color: #FF6C5D;
+    font-weight: bold;
+  }
+
+  .heading-black {
+    color: black;
+    font-weight: bold;
+    font-size: clamp(20px, 4vw, 30px);
+  }
+
+  .subheading-red {
+    color: #FF6C5D;
+    font-weight: bold;
+    font-size: clamp(15px, 3vw, 18px);
+  }
+
+  .subheading-black {
+    color: black;
+    font-weight: bold;
+    font-size: clamp(15px, 3vw, 18px);
+  }
+
+  .form-input {
+    background-color: #FFFFB0;
+    border: none;
+    border-bottom: 2px solid #FF6C5D;
+    color: #FF6C5D; 
+    font-weight: bold;
+    font-family: Arimo;
+    padding: 8px;
+    outline: none;
+    transition: border-bottom-color 0.3s ease border-bottom-width 0.3s ease;
+    width: 200px;
+  }
+
+  .form-input:hover,
+  .form-input:focus {
+    border-bottom-width: 3.5px;
+  }
+  
+  .form-input::placeholder {
+    color:#FF6C5D;
+    opacity: 0.5;
+  }
+
+  .input-label {
+    font-weight: bold;
+    color: #FF6C5D;
+  }
+
+
+/*
+****************************
+SPINNER ANIMATION CSS BEGINS
+****************************
+*/
+
+.lds-ring {
+  color: #FF6C5D
+}
+.lds-ring,
+.lds-ring div {
+  box-sizing: border-box;
+}
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid currentColor;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: currentColor transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/*
+**************************
+SPINNER ANIMATION CSS ENDS
+**************************
+*/
+
+/*
+****************************
+PROGRESS BAR STYLING BEGINS
+****************************
+*/
+.progress-container {
+  width: 50vw;
+  background-color: #FFFFB0;
+  border-radius: 5px;
+  border: 2.5px solid black;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 0; /* Initial width */
+  height: 10px;
+  background-color: #FF6C5D; 
+  border-radius: 3px;
+}
+/*
+****************************
+PROGRESS BAR STYLING ENDS
+****************************
+*/

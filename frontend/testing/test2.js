@@ -4,11 +4,11 @@ import {
   leaveChat,
   showQuestion,
   answerQuestion,
-} from "../socket/FiresideChatSockets.js";
+} from "../socket/7ChatSockets.js";
 
 const userID = "amna";
 const socket = getUserSocket(userID);
-const defaultResponse = "A";
+const defaultResponse = "";
 
 let thisQuestionSetID = null;
 let thisQuestionSetTopic = "";

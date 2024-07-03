@@ -6,17 +6,25 @@ import timeStampGenerator from "./utils/timeStampGenerator.js";
 import removeRandomEntry from "./utils/removeAndReturnMapValue.js";
 import { questionSets } from "./utils/questionSets.js";
 import dotenv from "dotenv";
-import { randomInt } from "crypto";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    allowedHeaders: ["*"],
+    credentials: true,
+  },
+});
+
+app.use(cors());
 
 app.use(express.json());
 app.use(cors());
 app.use(express.json({ limit: "500mb" }));
+app.options("*", cors());
 
 server.listen(PORT, () => {
   console.log(`Listening on PORT: ${PORT}`);
@@ -30,6 +38,7 @@ const inChatUserIDToSocketID = new Map();
 
 const userIDtoMatchID = new Map();
 
+// MUST BE CHANGED IF QUESTION SET MODIFIED
 const questionSetsObjectSize = 25;
 
 io.on("connection", (socket) => {
@@ -145,8 +154,15 @@ io.on("connection", (socket) => {
     if (!matchResponded) {
       const matchSocketID = userIDToSocketID.get(matchID);
       console.log(matchID, "has not responded");
-      const userResponse =
-        questionSets[questionSetID].options[questionNumber - 1][option];
+
+      let userResponse = "";
+
+      if (option !== "") {
+        userResponse =
+          questionSets[questionSetID].options[questionNumber - 1][option];
+      } else {
+        userResponse = "did not respond on time";
+      }
 
       io.to(matchSocketID).emit(
         "Server Chat Waiting For User Response",
@@ -155,8 +171,13 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("Server Waiting For Match Chat Response");
     } else {
       const userOneID = userID;
-      const userOneResponse =
-        questionSets[questionSetID].options[questionNumber - 1][option];
+      let userOneResponse = "";
+      if (option !== "") {
+        userOneResponse =
+          questionSets[questionSetID].options[questionNumber - 1][option];
+      } else {
+        userOneResponse = "did not respond in time";
+      }
       const userTwoID = matchID;
       const userTwoResponse = matchResponse;
       const questionSetSize = questionSets[questionSetID].questions.length;
@@ -217,6 +238,8 @@ io.on("connection", (socket) => {
     console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
     console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
     console.log("userIDtoMatchID => ", userIDtoMatchID);
+    console.log("userIDToSocketID => ", userIDToSocketID);
+    console.log("socketIDToUserID => ", socketIDToUserID);
   });
 });
 

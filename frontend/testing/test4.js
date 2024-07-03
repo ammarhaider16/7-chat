@@ -4,7 +4,7 @@ import {
   leaveChat,
   showQuestion,
   answerQuestion,
-} from "../socket/FiresideChatSockets.js";
+} from "../socket/7ChatSockets.js";
 
 const userID = "sabina";
 const socket = getUserSocket(userID);
