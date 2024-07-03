@@ -33,6 +33,7 @@ const Chat = () => {
   const matchResponseRef = useRef(null);
   const isSessionCompleteRef = useRef(false);
   const respondedToCurrentQuestionRef = useRef(false);
+  const timeoutsRef = useRef([]);
 
   // CHAT PROGRESS HOOKS
   const [showErrorInChat, setErrorInChat] = useState(false);
@@ -114,6 +115,13 @@ const Chat = () => {
     }
   }, [userID]);
 
+  useEffect(() => {
+    return () => {
+      console.log("******************CLEARING TIMEOUTS*****************");
+      timeoutsRef.current.forEach((timeoutID) => clearTimeout(timeoutID));
+    };
+  }, [currentQuestionNumberRef.current]);
+
   const handleEnterChat = () => {
     if (socketRef.current && socketConnected) {
       setShowPreChat(false);
@@ -163,7 +171,8 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchFound(true);
-    setTimeout(handleShowQuestionRequest, 7000);
+    const timeoutID = setTimeout(handleShowQuestionRequest, 7000);
+    timeoutsRef.current.push(timeoutID);
   };
 
   const handleShowQuestionRequest = () => {
@@ -194,11 +203,12 @@ const Chat = () => {
     setShowSessionCompleteScreen(false);
     setShowQuestionScreen(true);
 
-    setTimeout(() => {
+    const timeoutID = setTimeout(() => {
       if (!respondedToCurrentQuestionRef.current) {
         handleAnswerRequest("");
       }
     }, 14000);
+    timeoutsRef.current.push(timeoutID);
   };
 
   const handleAnswerRequest = (option) => {
@@ -263,13 +273,14 @@ const Chat = () => {
     setShowSessionCompleteScreen(false);
     setShowResponseScreen(true);
 
-    setTimeout(() => {
+    const timeoutID = setTimeout(() => {
       if (!isSessionCompleteRef.current) {
         handleShowNextQuestion();
       } else {
         handleShowSessionComplete();
       }
     }, 7000);
+    timeoutsRef.current.push(timeoutID);
   };
 
   const handleShowNextQuestion = () => {
