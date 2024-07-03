@@ -2,14 +2,11 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import timeStampGenerator from "./utils/timeStampGenerator.js";
 import removeRandomEntry from "./utils/removeAndReturnMapValue.js";
 import { questionSets } from "./utils/questionSets.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 4000;
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -18,7 +15,6 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
 
 app.use(express.json());
 app.use(cors());
