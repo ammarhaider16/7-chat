@@ -457,6 +457,13 @@ const Chat = () => {
                 {" "}
                 start matching
               </button>
+              <h1 className="subheading-black" style={{ marginTop: 20 }}>
+                tip:{" "}
+                <span className="subheading-red">
+                  {" "}
+                  for the best experience, avoid switching tabs!
+                </span>
+              </h1>
             </div>
           </div>
         )}

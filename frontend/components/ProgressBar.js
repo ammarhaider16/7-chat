@@ -14,7 +14,7 @@ const ProgressBar = ({ duration }) => {
       // Apply the width change after a short delay to trigger the transition
       setTimeout(() => {
         progressBarRef.current.style.width = "100%";
-      }, 10); // 100ms delay
+      }, 100); // 100ms delay
     }
   }, [duration]);
 

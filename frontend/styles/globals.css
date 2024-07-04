@@ -133,6 +133,12 @@
     color: #FF6C5D;
   }
 
+  .error-label {
+    font-weight: bold;
+    color: red;
+    font-size: 12px;
+  }
+
 
 /*
 ****************************
