@@ -4,6 +4,7 @@ import {
   leaveChat,
   showQuestion,
   answerQuestion,
+  sendEmailToMatch,
 } from "../socket/7ChatSockets.js";
 
 const userID = "hamza";
@@ -53,6 +54,10 @@ setTimeout(() => {
     socket
   );
 }, 20000);
+
+setTimeout(() => {
+  sendEmailToMatch("hamzaMail@gmail.com", thisMatchID, socket);
+}, 12500);
 
 setTimeout(() => {
   showQuestion(thisQuestionSetID, currentQuestionNumber, socket);
@@ -210,4 +215,8 @@ socket.on("Server Match Left Chat", () => {
 socket.on("Server Match Disconnected", (matchID) => {
   console.log(`Your match ${matchID} has disconnected!`);
   process.exit();
+});
+
+socket.on("Server Match Sent Email", (matchEmail) => {
+  console.log(`Your match sent you their email => ${matchEmail}`);
 });

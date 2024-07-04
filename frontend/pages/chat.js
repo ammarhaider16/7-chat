@@ -6,6 +6,7 @@ import {
   leaveChat,
   showQuestion,
   answerQuestion,
+  sendEmailToMatch,
 } from "@/socket/7ChatSockets";
 import Link from "next/link";
 import Spinner from "@/components/Spinner";
@@ -24,6 +25,7 @@ const Chat = () => {
   const [currentOptionA, setCurrentOptionA] = useState("");
   const [currentOptionB, setCurrentOptionB] = useState("");
   const [currentOptionC, setCurrentOptionC] = useState("");
+  const [matchEmail, setMatchEmail] = useState("");
 
   // CHAT DATA REF HOOKS
   const thisQuestionSetIDRef = useRef(null);
@@ -49,6 +51,8 @@ const Chat = () => {
   const [showSessionCompleteScreen, setShowSessionCompleteScreen] =
     useState(false);
   const [showMatchDisconnected, setShowMatchDisconnected] = useState(false);
+  const [showMatchEmail, setShowMatchEmail] = useState(false);
+  const [emailSentToMatch, setEmailSentToMatch] = useState(false);
 
   // CHAT QUESTION RESPONSE HOOKS
   const [thisResponseQuestionText, setThisResponseQuestionText] = useState("");
@@ -116,6 +120,10 @@ const Chat = () => {
         handleShowMatchDisconnected();
       });
 
+      socketRef.current.on("Server Match Sent Email", (params) => {
+        handleShowMatchEmail(params);
+      });
+
       return () => {
         if (socketRef.current) {
           socketRef.current.disconnect();
@@ -141,6 +149,7 @@ const Chat = () => {
       setShowResponseScreen(false);
       setShowSessionCompleteScreen(false);
       setShowMatchDisconnected(false);
+      setShowMatchEmail(false);
       setShowConnectingToChatRoom(true);
       enterChat(userID, socketRef.current);
     } else {
@@ -158,9 +167,10 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
-    // NEED TO ADD MORE CHAT STATES
+    setShowMatchEmail(false);
+    // ADD MORE CHAT STATES AS NEEDED
     setErrorInChat(true);
-    // RESET ALL CHAT DATA STATES AND REFS
+    resetChatDataStatesRefs();
   };
 
   const handleSearchingForMatch = () => {
@@ -172,6 +182,7 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowSearchingForMatch(true);
   };
 
@@ -189,8 +200,9 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowMatchFound(true);
-    const timeoutID = setTimeout(handleShowQuestionRequest, 7000);
+    const timeoutID = setTimeout(handleShowQuestionRequest, 4000);
     timeoutsRef.current.push(timeoutID);
   };
 
@@ -221,13 +233,14 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowQuestionScreen(true);
 
     const timeoutID = setTimeout(() => {
       if (!respondedToCurrentQuestionRef.current) {
         handleAnswerRequest("");
       }
-    }, 14000);
+    }, 7000);
     timeoutsRef.current.push(timeoutID);
   };
 
@@ -260,6 +273,7 @@ const Chat = () => {
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowWaitingForMatchResponse(true);
   };
 
@@ -293,6 +307,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowSessionCompleteScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowResponseScreen(true);
 
     const timeoutID = setTimeout(() => {
@@ -301,7 +316,7 @@ const Chat = () => {
       } else {
         handleShowSessionComplete();
       }
-    }, 7000);
+    }, 4000);
     timeoutsRef.current.push(timeoutID);
   };
 
@@ -331,6 +346,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
     setShowMatchDisconnected(false);
+    setShowMatchEmail(false);
     setShowSessionCompleteScreen(true);
   };
 
@@ -343,6 +359,8 @@ const Chat = () => {
     setCurrentOptionA("");
     setCurrentOptionB("");
     setCurrentOptionC("");
+    setMatchEmail("");
+    setEmailSentToMatch(false);
 
     thisQuestionSetIDRef.current = null;
     thisMatchIDRef.current = null;
@@ -355,22 +373,39 @@ const Chat = () => {
   };
 
   const handleShowMatchDisconnected = () => {
-    console.log(`Your match ${thisMatchIDRef.current} has disconnected!`);
-    resetChatDataStatesRefs();
-    setShowPreChat(false);
-    setShowConnectingToChatRoom(false);
-    setShowSearchingForMatch(false);
-    setShowMatchFound(false);
-    setShowQuestionScreen(false);
-    setShowWaitingForMatchResponse(false);
-    setShowResponseScreen(false);
-    setShowSessionCompleteScreen(false);
-    setShowMatchDisconnected(true);
+    if (!isSessionCompleteRef.current && thisMatchIDRef.current) {
+      console.log(`Your match ${thisMatchIDRef.current} has disconnected!`);
+      resetChatDataStatesRefs();
+      setShowPreChat(false);
+      setShowConnectingToChatRoom(false);
+      setShowSearchingForMatch(false);
+      setShowMatchFound(false);
+      setShowQuestionScreen(false);
+      setShowWaitingForMatchResponse(false);
+      setShowResponseScreen(false);
+      setShowSessionCompleteScreen(false);
+      setShowMatchEmail(false);
+      setShowMatchDisconnected(true);
+    }
   };
 
   const handleRematchRequest = () => {
     resetChatDataStatesRefs();
     handleEnterChat();
+  };
+
+  const handleShowMatchEmail = (params) => {
+    const { sendingUserID, sendingUserEmail } = params;
+    if (sendingUserID == thisMatchIDRef.current) {
+      console.log(`Your match sent you their email => ${sendingUserEmail}`);
+      setMatchEmail(sendingUserEmail);
+      setShowMatchEmail(true);
+    }
+  };
+
+  const handleSendEmailToMatch = () => {
+    setEmailSentToMatch(true);
+    sendEmailToMatch(email, thisMatchIDRef.current, socketRef.current);
   };
 
   return (
@@ -391,7 +426,7 @@ const Chat = () => {
         {showErrorInChat && (
           <div className="info-container-main">
             <div>
-              <h1 className="heading-black">Oh No!</h1>
+              <h1 className="heading-black">oh no!</h1>
               <h1 style={{ marginTop: 20 }}>
                 looks like there has been a connection error! please try again!
               </h1>
@@ -410,7 +445,7 @@ const Chat = () => {
               <h1 className="heading-black">how it works</h1>
               <h1 style={{ marginTop: 20 }} className="subheading-red">
                 once you get randomly matched with someone, each of you answer 7
-                questions. you only get 14 seconds to answer each question and
+                questions. you only get 7 seconds to answer each question and
                 you can only see how your match responded after you have
                 responded! at the end, you guys can decide if you want to talk
                 more and become friends!
@@ -456,7 +491,7 @@ const Chat = () => {
             </h1>
             <div style={{ marginTop: 20 }}>
               <h1 className="subheading-black">starting chat</h1>
-              <ProgressBar duration={7} />
+              <ProgressBar duration={4} />
             </div>
           </div>
         )}
@@ -495,7 +530,7 @@ const Chat = () => {
               </button>
             </div>
             <div style={{ marginTop: 20 }}>
-              <ProgressBar duration={14} />
+              <ProgressBar duration={7} />
             </div>
           </div>
         )}
@@ -563,7 +598,7 @@ const Chat = () => {
               </>
             )}
             <div style={{ marginTop: 20 }}>
-              <ProgressBar duration={7} />
+              <ProgressBar duration={4} />
             </div>
           </div>
         )}
@@ -574,6 +609,33 @@ const Chat = () => {
               hope you enjoyed talking to{" "}
               <span className="subheading-red">@{thisMatchID}!</span>
             </h1>
+            {showMatchEmail && (
+              <div style={{ marginTop: 20 }}>
+                <h1 className="subheading-black">
+                  <span className="subheading-red">@{thisMatchID}</span> sent
+                  you their email! find them at{" "}
+                  <span className="subheading-red">{matchEmail}</span>
+                </h1>
+              </div>
+            )}
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                flexDirection: "column",
+              }}>
+              {!emailSentToMatch && (
+                <button
+                  className="button"
+                  onClick={handleSendEmailToMatch}
+                  style={{ marginBottom: 20 }}>
+                  send your email to match?
+                </button>
+              )}
+              <button className="button" onClick={handleRematchRequest}>
+                match again?
+              </button>
+            </div>
           </div>
         )}
         {showMatchDisconnected && (
@@ -595,11 +657,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-/* 
-setCurrentQuestionText(questionText);
-setCurrentOptionA(options["A"]);
-setCurrentOptionB(options["B"]);
-setCurrentOptionC(options["C"]);
-
- */

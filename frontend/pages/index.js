@@ -23,7 +23,11 @@ export default function Home() {
 
   return (
     <main>
-      <div className="intro-container" style={{ justifyContent: "center" }}>
+      <div className="intro-container">
+        <div className="info-container-main" style={{marginTop:"15vh"}}>
+          <h1 className="heading-black">did you know?</h1>
+          <h1 className="subheading-red">49 seconds is all you need to get to know a new friend</h1>
+        </div>
         <div className="info-container-basic">
           <div style={{ margin: 20, textAlign: "center" }}>
             <FormComponent
@@ -46,7 +50,7 @@ export default function Home() {
           </div>
 
           <button className="button" onClick={goToChat}>
-            <Link href="/chat">go to chat</Link>
+            <Link href="/chat">start chatting</Link>
           </button>
         </div>
       </div>

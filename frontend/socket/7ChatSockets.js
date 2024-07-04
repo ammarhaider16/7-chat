@@ -40,6 +40,11 @@ export const answerQuestion = (
   socket.emit("Client Answer Chat Question", params);
 };
 
+export const sendEmailToMatch = (userEmail, matchID, socket) => {
+  const params = { userEmail, matchID };
+  socket.emit("Client Send Email To Match", params);
+};
+
 /* 
 let thisQuestionSetID = null;
 let thisQuestionSetTopic = ""
@@ -125,6 +130,9 @@ socket.on("Server Match Disconnected", (matchID) => {
 
 socket.on("connect_error", (err) => {
   console.log(`connect_error due to ${err.message}`);
+});
+socket.on("Server Match Sent Email", (matchEmail) => {
+  console.log(`Your match sent you their email => ${matchEmail}`);
 });
 
  */
