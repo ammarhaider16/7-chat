@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import removeRandomEntry from "./utils/removeAndReturnMapValue.js";
 import { questionSets } from "./utils/questionSets.js";
+import rootRouter from "./rootRouter.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -22,9 +23,9 @@ const io = new Server(server, {
 // Set io instance on server object for later use
 server.io = io;
 
-app.use(express.json());
 app.use(cors());
 app.use(express.json({ limit: "500mb" }));
+app.use("", rootRouter);
 
 server.listen(PORT, () => {
   console.log(`Listening on PORT: ${PORT}`);
@@ -32,9 +33,7 @@ server.listen(PORT, () => {
 
 const userIDToSocketID = new Map();
 const socketIDToUserID = new Map();
-
 const availableUserIDToSocketID = new Map();
-
 const userIDtoMatchID = new Map();
 
 // MUST BE CHANGED IF QUESTION SET MODIFIED
