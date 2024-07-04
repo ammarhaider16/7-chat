@@ -4,22 +4,27 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import removeRandomEntry from "./utils/removeAndReturnMapValue.js";
 import { questionSets } from "./utils/questionSets.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const server = createServer(app);
+
+// Initialize socket.io
 const io = new Server(server, {
   cors: {
     origin: "*",
     allowedHeaders: ["*"],
-    credentials: true,
   },
 });
+
+// Set io instance on server object for later use
+server.io = io;
 
 app.use(express.json());
 app.use(cors());
 app.use(express.json({ limit: "500mb" }));
-app.options("*", cors());
 
 server.listen(PORT, () => {
   console.log(`Listening on PORT: ${PORT}`);
@@ -29,7 +34,6 @@ const userIDToSocketID = new Map();
 const socketIDToUserID = new Map();
 
 const availableUserIDToSocketID = new Map();
-const inChatUserIDToSocketID = new Map();
 
 const userIDtoMatchID = new Map();
 
@@ -50,7 +54,7 @@ io.on("connection", (socket) => {
 
   socket.on("Client Enter Chat", (userID) => {
     availableUserIDToSocketID.set(userID, socket.id);
-    console.log("Map updated");
+    console.log("Maps updated");
     console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
 
     console.log("Matching Request Received!");
@@ -64,15 +68,11 @@ io.on("connection", (socket) => {
       const userTwoID = removeRandomEntry(availableUserIDToSocketID);
       const userTwoSocketID = userIDToSocketID.get(userTwoID);
 
-      inChatUserIDToSocketID.set(userID, socket.id);
-      inChatUserIDToSocketID.set(userTwoID, userTwoSocketID);
-
       userIDtoMatchID.set(userID, userTwoID);
       userIDtoMatchID.set(userTwoID, userID);
 
       console.log("Maps updated");
       console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
-      console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
       console.log("userIDtoMatchID => ", userIDtoMatchID);
 
       const questionSetID = Math.ceil(Math.random() * questionSetsObjectSize);
@@ -102,7 +102,6 @@ io.on("connection", (socket) => {
 
     const userSocketID = userIDToSocketID.get(userID);
     availableUserIDToSocketID.delete(userID);
-    inChatUserIDToSocketID.delete(userID);
     io.to(userSocketID).emit("Server Client Left Chat");
 
     if (matchID != null) {
@@ -110,14 +109,12 @@ io.on("connection", (socket) => {
       const matchSocketID = userIDToSocketID.get(matchID);
       io.to(matchSocketID).emit("Server Match Left Chat");
       availableUserIDToSocketID.delete(matchID);
-      inChatUserIDToSocketID.delete(matchID);
       userIDtoMatchID.delete(userID);
       userIDtoMatchID.delete(matchID);
     }
 
     console.log("Maps updated");
     console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
-    console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
     console.log("userIDtoMatchID => ", userIDtoMatchID);
   });
 
@@ -211,6 +208,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("Client Send Email To Match", (params) => {
+    const { userEmail, matchID } = params;
+    const matchSocketID = userIDToSocketID.get(matchID);
+    const sendingUserID = socketIDToUserID.get(socket.id);
+    const sendingUserEmail = userEmail;
+    const emitParams = { sendingUserID, sendingUserEmail };
+    io.to(matchSocketID).emit("Server Match Sent Email", emitParams);
+  });
+
   socket.on("disconnect", () => {
     const userID = socketIDToUserID.get(socket.id);
     const matchID = userIDtoMatchID.get(userID);
@@ -218,20 +224,17 @@ io.on("connection", (socket) => {
     socketIDToUserID.delete(socket.id);
     userIDToSocketID.delete(userID);
     availableUserIDToSocketID.delete(userID);
-    inChatUserIDToSocketID.delete(userID);
 
     if (matchID != null) {
       const matchSocketID = userIDToSocketID.get(matchID);
       io.to(matchSocketID).emit("Server Match Disconnected", userID);
       availableUserIDToSocketID.delete(matchID);
-      inChatUserIDToSocketID.delete(matchID);
       userIDtoMatchID.delete(userID);
       userIDtoMatchID.delete(matchID);
     }
 
     console.log("Maps updated");
     console.log("availableUserIDToSocketID => ", availableUserIDToSocketID);
-    console.log("inChatUserIDToSocketID => ", inChatUserIDToSocketID);
     console.log("userIDtoMatchID => ", userIDtoMatchID);
     console.log("userIDToSocketID => ", userIDToSocketID);
     console.log("socketIDToUserID => ", socketIDToUserID);
