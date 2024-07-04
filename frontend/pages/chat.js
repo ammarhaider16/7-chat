@@ -82,6 +82,9 @@ const Chat = () => {
 
       socketRef.current.on("connect_error", (err) => {
         console.log(`connect_error due to ${err.message}`);
+        console.log(err.req);
+        console.log(err.code);
+        console.log(err.context);
         setSocketConnected(false);
       });
 
