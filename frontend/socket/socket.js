@@ -6,7 +6,9 @@ const AWS_ADRESS = "http://ec2-3-19-221-76.us-east-2.compute.amazonaws.com";
 const PORT = "4000";
 
 const setConnection = () => {
-  const socket = io(`${AWS_ADRESS}:${PORT}`);
+  const socket = io(`http://${IP_EDUROAM}:${PORT}`, {
+    path: "/api/socket",
+  });
   return socket;
 };
 
