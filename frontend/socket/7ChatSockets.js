@@ -115,7 +115,7 @@ socket.on("Server Client Left Chat", () => {
 });
 
 socket.on("Server Match Left Chat", () => {
-  console.log("Your  left the Chat Session");
+  console.log("Your match left the Chat Session");
 });
 
 socket.on("Server Match Disconnected", (matchID) => {

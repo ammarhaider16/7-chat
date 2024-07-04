@@ -48,6 +48,7 @@ const Chat = () => {
   const [showResponseScreen, setShowResponseScreen] = useState(false);
   const [showSessionCompleteScreen, setShowSessionCompleteScreen] =
     useState(false);
+  const [showMatchDisconnected, setShowMatchDisconnected] = useState(false);
 
   // CHAT QUESTION RESPONSE HOOKS
   const [thisResponseQuestionText, setThisResponseQuestionText] = useState("");
@@ -86,6 +87,7 @@ const Chat = () => {
         console.log(err.code);
         console.log(err.context);
         setSocketConnected(false);
+        handleDisplayError();
       });
 
       socketRef.current.on("disconnect", () => {
@@ -110,6 +112,10 @@ const Chat = () => {
         }
       );
 
+      socketRef.current.on("Server Match Disconnected", (matchID) => {
+        handleShowMatchDisconnected();
+      });
+
       return () => {
         if (socketRef.current) {
           socketRef.current.disconnect();
@@ -128,14 +134,21 @@ const Chat = () => {
   const handleEnterChat = () => {
     if (socketRef.current && socketConnected) {
       setShowPreChat(false);
+      setShowSearchingForMatch(false);
+      setShowMatchFound(false);
+      setShowQuestionScreen(false);
+      setShowWaitingForMatchResponse(false);
+      setShowResponseScreen(false);
+      setShowSessionCompleteScreen(false);
+      setShowMatchDisconnected(false);
       setShowConnectingToChatRoom(true);
       enterChat(userID, socketRef.current);
     } else {
-      displayError();
+      handleDisplayError();
     }
   };
 
-  const displayError = () => {
+  const handleDisplayError = () => {
     setShowPreChat(false);
     setShowConnectingToChatRoom(false);
     setShowSearchingForMatch(false);
@@ -144,6 +157,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     // NEED TO ADD MORE CHAT STATES
     setErrorInChat(true);
     // RESET ALL CHAT DATA STATES AND REFS
@@ -157,6 +171,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     setShowSearchingForMatch(true);
   };
 
@@ -173,6 +188,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     setShowMatchFound(true);
     const timeoutID = setTimeout(handleShowQuestionRequest, 7000);
     timeoutsRef.current.push(timeoutID);
@@ -204,6 +220,7 @@ const Chat = () => {
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     setShowQuestionScreen(true);
 
     const timeoutID = setTimeout(() => {
@@ -242,6 +259,7 @@ const Chat = () => {
     setShowQuestionScreen(false);
     setShowResponseScreen(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     setShowWaitingForMatchResponse(true);
   };
 
@@ -274,6 +292,7 @@ const Chat = () => {
     setShowQuestionScreen(false);
     setShowWaitingForMatchResponse(false);
     setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(false);
     setShowResponseScreen(true);
 
     const timeoutID = setTimeout(() => {
@@ -311,7 +330,47 @@ const Chat = () => {
     setShowQuestionScreen(false);
     setShowWaitingForMatchResponse(false);
     setShowResponseScreen(false);
+    setShowMatchDisconnected(false);
     setShowSessionCompleteScreen(true);
+  };
+
+  const resetChatDataStatesRefs = () => {
+    timeoutsRef.current.forEach((timeoutID) => clearTimeout(timeoutID));
+
+    setThisQuestionSetTopic("");
+    setThisMatchID(null);
+    setCurrentQuestionText("");
+    setCurrentOptionA("");
+    setCurrentOptionB("");
+    setCurrentOptionC("");
+
+    thisQuestionSetIDRef.current = null;
+    thisMatchIDRef.current = null;
+    currentQuestionNumberRef.current = 1;
+    matchRespondedRef.current = false;
+    matchResponseRef.current = null;
+    isSessionCompleteRef.current = false;
+    respondedToCurrentQuestionRef.current = false;
+    timeoutsRef.current = [];
+  };
+
+  const handleShowMatchDisconnected = () => {
+    console.log(`Your match ${thisMatchIDRef.current} has disconnected!`);
+    resetChatDataStatesRefs();
+    setShowPreChat(false);
+    setShowConnectingToChatRoom(false);
+    setShowSearchingForMatch(false);
+    setShowMatchFound(false);
+    setShowQuestionScreen(false);
+    setShowWaitingForMatchResponse(false);
+    setShowResponseScreen(false);
+    setShowSessionCompleteScreen(false);
+    setShowMatchDisconnected(true);
+  };
+
+  const handleRematchRequest = () => {
+    resetChatDataStatesRefs();
+    handleEnterChat();
   };
 
   return (
@@ -515,6 +574,19 @@ const Chat = () => {
               hope you enjoyed talking to{" "}
               <span className="subheading-red">@{thisMatchID}!</span>
             </h1>
+          </div>
+        )}
+        {showMatchDisconnected && (
+          <div className="info-container-main">
+            <h1 className="heading-black">oops..</h1>
+            <h1 className="subheading-red">
+              looks like your match disconnected
+            </h1>
+            <div style={{ marginTop: 20 }}>
+              <button className="button" onClick={handleRematchRequest}>
+                match again?
+              </button>
+            </div>
           </div>
         )}
       </div>
