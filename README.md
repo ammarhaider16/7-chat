@@ -11,7 +11,7 @@
 - **Friendship Option**: At the end of the session, users can decide to share their emails to become friends.
 - **Future Enhancements**: Plans to add in-app chat functionality and more sophisticated user management features.
 
-### Demo
+## Demo
 The application is deployed and can be accessed at [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/).
 Check out a video demonstration of 7Chat on [YouTube](https://www.youtube.com/watch?v=OEDIiK80tI8).
 
