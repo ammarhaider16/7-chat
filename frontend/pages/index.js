@@ -76,7 +76,7 @@ export default function Home() {
             49 seconds is all you need to get to know a new friend
           </h1>
           <h1 className="subheading-black" style={{ marginTop: 10 }}>
-            check out a live demo{" "}
+            check out the live demo{" "}
             <Link href="https://youtu.be/OEDIiK80tI8?si=UgKvGz42NFoQY04F">
               <span
                 className="subheading-red"
