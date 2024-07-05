@@ -1,7 +1,7 @@
 
 # 7Chat
 
-7Chat is a creative live chat application that randomly matches users and directs them through prompt-based communication. The app fosters quick interactions, where users answer a series of questions, providing an engaging and dynamic chatting experience.
+[7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/) is a creative Websocket-based live chat application that randomly matches users and directs them through prompt-based communication. The app fosters quick interactions, where users answer a series of questions, providing an engaging and dynamic chatting experience.
 
 ## Features
 
@@ -10,6 +10,10 @@
 - **Simultaneous Response Display**: Answers are displayed only when both users have responded to each question.
 - **Friendship Option**: At the end of the session, users can decide to share their emails to become friends.
 - **Future Enhancements**: Plans to add in-app chat functionality and more sophisticated user management features.
+
+### Demo
+The application is deployed and can be accessed at [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/).
+Check out a video demonstration of 7Chat on [YouTube](https://www.youtube.com/watch?v=OEDIiK80tI8).
 
 ## Technologies Used
 
@@ -35,6 +39,14 @@
 
 ### WebSockets
 - **Implementation**: Used [Socket.IO](https://socket.io/) for detailed WebSocket implementation, handling matching, communication, and connection error management.
+
+## Deployment
+
+The application uses AWS Elastic Beanstalk for deployment. Both the frontend and backend are deployed in separate environments to ensure scalability and manageability.
+
+- **Frontend**: Deployed to [AWS Elastic Beanstalk](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/)
+- **Backend**: Deployed to a separate AWS Elastic Beanstalk environment
+
 
 ## Getting Started
 
@@ -86,21 +98,13 @@ To run the application locally, follow these steps:
 
 Visit `http://localhost:3000` to view the frontend application. The backend server should be running on `http://localhost:4000`.
 
-## Demo
-
-Check out a video demonstration of 7Chat on [YouTube](https://www.youtube.com/watch?v=OEDIiK80tI8).
-
-## Deployment
-
-The application is deployed and can be accessed at [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/).
-
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## License
 
-Distributed under the MIT License. See [LICENSE] for more information.
+Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
 
 ## Contact
 
