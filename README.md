@@ -3,6 +3,10 @@
 
 [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/) is a creative Websocket-based live chat application that randomly matches users and directs them through prompt-based communication. The app fosters quick interactions, where users answer a series of questions, providing an engaging and dynamic chatting experience.
 
+## Demo
+The application is deployed and can be accessed at [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/).
+Check out a video demonstration of 7Chat on [YouTube](https://www.youtube.com/watch?v=OEDIiK80tI8).
+
 ## Features
 
 - **Random Matching**: Users are matched randomly to initiate a conversation.
@@ -10,10 +14,6 @@
 - **Simultaneous Response Display**: Answers are displayed only when both users have responded to each question.
 - **Friendship Option**: At the end of the session, users can decide to share their emails to become friends.
 - **Future Enhancements**: Plans to add in-app chat functionality and more sophisticated user management features.
-
-## Demo
-The application is deployed and can be accessed at [7Chat](http://7-chat-frontend-env.eba-tyhhxjsz.us-east-2.elasticbeanstalk.com/).
-Check out a video demonstration of 7Chat on [YouTube](https://www.youtube.com/watch?v=OEDIiK80tI8).
 
 ## Technologies Used
 
